@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, CircleAlert, Hash, LoaderCircle, Send, TriangleAlert } from 'lucide-react'
 import ChegaraEditor from '../components/ChegaraEditor'
 import FileInput from '../components/FileInput'
+import { useToast } from '../components/Toast'
 import { api, ApiError } from '../lib/api'
 import { FAYL_TURLARI, HUJJAT_TURLARI } from '../lib/constants'
 import { bolajakId } from '../lib/geo'
@@ -23,11 +25,16 @@ const EMPTY: ArizaForm = {
   tasdiqlovchi_hujjat: null,
 }
 
+function Err({ msg }: { msg?: string }) {
+  return msg ? <p className="field-error"><CircleAlert size={14} />{msg}</p> : null
+}
+
 /** Yangi ariza (/arizalar/yangi) yoki qaytarilgan arizani tuzatish (/arizalar/:id/tahrir). */
 export default function ArizaFormPage() {
   const { id } = useParams()
   const tahrir = id != null
   const navigate = useNavigate()
+  const toast = useToast()
   const { rol } = useRol()
   const [soatolar, setSoatolar] = useState<Soato[]>([])
   const [mavjud, setMavjud] = useState<ArizaToliq | null>(null)
@@ -42,7 +49,7 @@ export default function ArizaFormPage() {
     watch,
     reset,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, submitCount },
   } = useForm<ArizaForm>({ resolver: zodResolver(schema), defaultValues: EMPTY, mode: 'onTouched' })
 
   useEffect(() => {
@@ -62,12 +69,21 @@ export default function ArizaFormPage() {
 
   const [turi, soato, sana] = watch(['hujjat_turi', 'soato_kodi', 'tasdiq_sanasi'])
   const kelajakId = bolajakId(turi, soato, sana)
+  const xatoSoni = Object.keys(errors).length
 
   if (rol !== 'ariza_beruvchi') {
-    return <p className="alert alert-warn">Ariza yuborish uchun yuqorida "Ariza beruvchi" rolini tanlang.</p>
+    return (
+      <p className="alert alert-warn">
+        <TriangleAlert size={18} />
+        <span>
+          Arizani faqat ariza beruvchi to'ldiradi — yuqorida "Ariza beruvchi" rolini tanlang.{' '}
+          <Link to={tahrir ? `/arizalar/${id}` : '/arizalar'}>{tahrir ? 'Arizani ko\'rish' : 'Arizalar ro\'yxati'}</Link>
+        </span>
+      </p>
+    )
   }
   if (tahrir && mavjud && mavjud.holat !== 'qaytarilgan') {
-    return <p className="alert alert-warn">Faqat qaytarilgan arizani tuzatish mumkin. <Link to={`/arizalar/${id}`}>Arizaga qaytish</Link></p>
+    return <p className="alert alert-warn"><TriangleAlert size={18} />Faqat qaytarilgan arizani tuzatish mumkin.&nbsp;<Link to={`/arizalar/${id}`}>Arizaga qaytish</Link></p>
   }
 
   const onSubmit = async (v: ArizaForm) => {
@@ -85,7 +101,8 @@ export default function ArizaFormPage() {
     for (const t of Object.keys(FAYL_TURLARI) as FaylTur[]) if (v[t]) files[t] = v[t] as File
     try {
       const res = tahrir ? await api.qaytaYuborish(Number(id), data, files, setProgress) : await api.yuborish(data, files, setProgress)
-      navigate(`/arizalar/${res.id}`, { state: { flash: tahrir ? 'Ariza qayta yuborildi' : 'Ariza yuborildi' } })
+      toast(tahrir ? 'Ariza qayta yuborildi' : 'Ariza yuborildi — tekshiruvchi ko\'rib chiqadi')
+      navigate(`/arizalar/${res.id}`)
     } catch (e) {
       setProgress(null)
       if (e instanceof ApiError) {
@@ -95,106 +112,137 @@ export default function ArizaFormPage() {
     }
   }
 
-  const fileErr = (t: FaylTur) => errors[t]?.message as string | undefined
-
   return (
-    <form className="card form" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <h1>{tahrir ? `Arizani tuzatish #${id}` : 'Yangi ariza'}</h1>
-      {mavjud?.qaytarish_sababi && (
-        <p className="alert alert-warn">
-          <b>Qaytarish sababi:</b> {mavjud.qaytarish_sababi}
-        </p>
-      )}
-
-      <div className="grid-2">
-        <div className={`field span-2 ${errors.hujjat_nomi ? 'has-error' : ''}`}>
-          <label className="label" htmlFor="hujjat_nomi">Hujjat nomi</label>
-          <input id="hujjat_nomi" maxLength={255} placeholder="Masalan: Andijon shahri bosh rejasi" {...register('hujjat_nomi')} />
-          {errors.hujjat_nomi && <p className="field-error">{errors.hujjat_nomi.message}</p>}
-        </div>
-
-        <div className={`field ${errors.hujjat_turi ? 'has-error' : ''}`}>
-          <label className="label" htmlFor="hujjat_turi">Hujjat turi</label>
-          <select id="hujjat_turi" {...register('hujjat_turi')}>
-            <option value="">— tanlang —</option>
-            {HUJJAT_TURLARI.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-          {errors.hujjat_turi && <p className="field-error">{errors.hujjat_turi.message}</p>}
-        </div>
-
-        <div className={`field ${errors.soato_kodi ? 'has-error' : ''}`}>
-          <label className="label" htmlFor="soato_kodi">Hudud (SOATO)</label>
-          <select id="soato_kodi" {...register('soato_kodi')}>
-            <option value="">— tanlang —</option>
-            {soatolar.map((s) => (
-              <option key={s.kod} value={s.kod}>{s.kod} — {s.nomi}</option>
-            ))}
-          </select>
-          {errors.soato_kodi && <p className="field-error">{errors.soato_kodi.message}</p>}
-        </div>
-
-        <div className={`field ${errors.tasdiq_sanasi ? 'has-error' : ''}`}>
-          <label className="label" htmlFor="tasdiq_sanasi">Tasdiqlangan sana</label>
-          <input id="tasdiq_sanasi" type="date" max={new Date().toISOString().slice(0, 10)} {...register('tasdiq_sanasi')} />
-          {errors.tasdiq_sanasi && <p className="field-error">{errors.tasdiq_sanasi.message}</p>}
-        </div>
-
-        <div className={`field ${errors.tasdiq_hujjati ? 'has-error' : ''}`}>
-          <label className="label" htmlFor="tasdiq_hujjati">Qaror raqami</label>
-          <input id="tasdiq_hujjati" maxLength={100} placeholder="Masalan: 123-son qaror" {...register('tasdiq_hujjati')} />
-          {errors.tasdiq_hujjati && <p className="field-error">{errors.tasdiq_hujjati.message}</p>}
-        </div>
-
-        <div className="field span-2">
-          <label className="label" htmlFor="kelajak_id">Bo'lajak ID raqam</label>
-          <input id="kelajak_id" readOnly value={kelajakId ?? ''} placeholder="Tur, hudud va sana tanlanganda ko'rinadi" className="readonly" />
-          <p className="muted small">ID tekshiruvchi tasdiqlaganda server tomonidan beriladi.</p>
+    <form className="stack" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <div>
+        <Link to={tahrir ? `/arizalar/${id}` : '/arizalar'} className="back"><ArrowLeft size={15} />Orqaga</Link>
+        <div className="page-head" style={{ marginBottom: 0 }}>
+          <div>
+            <h1>{tahrir ? `Arizani tuzatish #${id}` : 'Yangi ariza'}</h1>
+            <p className="sub">Shaharsozlik hujjatini ro'yxatga olish uchun ariza. Barcha maydonlar majburiy.</p>
+          </div>
         </div>
       </div>
 
-      <h2>Hujjat chegarasi</h2>
-      <Controller
-        control={control}
-        name="chegara"
-        render={({ field, fieldState }) => (
-          <ChegaraEditor value={field.value ?? null} onChange={(g) => { field.onChange(g); field.onBlur() }} error={fieldState.error?.message} />
-        )}
-      />
+      {mavjud?.qaytarish_sababi && (
+        <p className="alert alert-warn"><TriangleAlert size={18} /><span><b>Tekshiruvchi izohi:</b> {mavjud.qaytarish_sababi}</span></p>
+      )}
 
-      <h2>Fayllar</h2>
-      <div className="grid-3">
-        {(Object.keys(FAYL_TURLARI) as FaylTur[]).map((t) => (
+      <section className="card">
+        <div className="card-head"><span className="step">1</span><h2>Hujjat ma'lumotlari</h2></div>
+        <div className="card-pad grid-2">
+          <div className={`field span-2 ${errors.hujjat_nomi ? 'has-error' : ''}`}>
+            <label className="label" htmlFor="hujjat_nomi">Hujjat nomi</label>
+            <input id="hujjat_nomi" maxLength={255} placeholder="Masalan: Andijon shahri bosh rejasi" {...register('hujjat_nomi')} />
+            <Err msg={errors.hujjat_nomi?.message} />
+          </div>
+
+          <div className={`field ${errors.hujjat_turi ? 'has-error' : ''}`}>
+            <label className="label" htmlFor="hujjat_turi">Hujjat turi</label>
+            <select id="hujjat_turi" {...register('hujjat_turi')}>
+              <option value="">Tanlang</option>
+              {HUJJAT_TURLARI.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+            <Err msg={errors.hujjat_turi?.message} />
+          </div>
+
+          <div className={`field ${errors.soato_kodi ? 'has-error' : ''}`}>
+            <label className="label" htmlFor="soato_kodi">Hudud (SOATO)</label>
+            <select id="soato_kodi" {...register('soato_kodi')}>
+              <option value="">Tanlang</option>
+              {soatolar.map((s) => (
+                <option key={s.kod} value={s.kod}>{s.nomi} · {s.kod}</option>
+              ))}
+            </select>
+            <Err msg={errors.soato_kodi?.message} />
+          </div>
+
+          <div className={`field ${errors.tasdiq_sanasi ? 'has-error' : ''}`}>
+            <label className="label" htmlFor="tasdiq_sanasi">Tasdiqlangan sana</label>
+            <input id="tasdiq_sanasi" type="date" max={new Date().toISOString().slice(0, 10)} {...register('tasdiq_sanasi')} />
+            <Err msg={errors.tasdiq_sanasi?.message} />
+          </div>
+
+          <div className={`field ${errors.tasdiq_hujjati ? 'has-error' : ''}`}>
+            <label className="label" htmlFor="tasdiq_hujjati">Qaror raqami</label>
+            <input id="tasdiq_hujjati" maxLength={100} placeholder="Masalan: 123-son qaror" {...register('tasdiq_hujjati')} />
+            <Err msg={errors.tasdiq_hujjati?.message} />
+          </div>
+
+          <div className="field span-2">
+            <span className="label">Bo'lajak ID raqam</span>
+            <div className="id-preview">
+              <Hash size={18} className="muted" />
+              <input id="kelajak_id" type="hidden" readOnly value={kelajakId ?? ''} />
+              <span className={`idp-val ${kelajakId ? '' : 'empty'}`}>{kelajakId ?? 'Tur, hudud va sana tanlanganda ko\'rinadi'}</span>
+              <span className="small muted" style={{ marginLeft: 'auto' }}>tekshiruvchi tasdiqlaganda beriladi</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="card-head">
+          <span className="step">2</span><h2>Hujjat chegarasi</h2>
+          <span className="hint">O'zbekiston hududida bo'lishi kerak</span>
+        </div>
+        <div className="card-pad">
           <Controller
-            key={t}
             control={control}
-            name={t}
-            render={({ field }) => (
-              <FileInput
-                label={FAYL_TURLARI[t]}
-                value={field.value as File | null}
-                onChange={(f) => { field.onChange(f); field.onBlur() }}
-                error={fileErr(t)}
-                mavjud={mavjud?.fayllar.find((f) => f.tur === t)?.nomi}
-              />
+            name="chegara"
+            render={({ field, fieldState }) => (
+              <ChegaraEditor value={field.value ?? null} onChange={(g) => { field.onChange(g); field.onBlur() }} error={fieldState.error?.message} />
             )}
           />
-        ))}
-      </div>
-
-      {umumiyXato && <p className="alert alert-error">{umumiyXato}</p>}
-      {progress != null && (
-        <div className="progress" aria-label="Yuklash jarayoni">
-          <div className="progress-bar" style={{ width: `${progress}%` }} />
-          <span>{progress < 100 ? `Yuklanmoqda: ${progress}%` : 'Server tekshirmoqda…'}</span>
         </div>
-      )}
+      </section>
 
-      <div className="actions">
+      <section className="card">
+        <div className="card-head">
+          <span className="step">3</span><h2>Fayllar</h2>
+          <span className="hint">{tahrir ? 'Faqat almashtiriladigan faylni tanlang' : '3 ta fayl majburiy'}</span>
+        </div>
+        <div className="card-pad grid-3">
+          {(Object.keys(FAYL_TURLARI) as FaylTur[]).map((t) => (
+            <Controller
+              key={t}
+              control={control}
+              name={t}
+              render={({ field }) => (
+                <FileInput
+                  label={FAYL_TURLARI[t]}
+                  value={field.value as File | null}
+                  onChange={(f) => { field.onChange(f); field.onBlur() }}
+                  error={errors[t]?.message as string | undefined}
+                  mavjud={mavjud?.fayllar.find((f) => f.tur === t)?.nomi}
+                />
+              )}
+            />
+          ))}
+        </div>
+      </section>
+
+      {umumiyXato && <p className="alert alert-error"><CircleAlert size={18} />{umumiyXato}</p>}
+
+      <div className="action-bar">
+        <div className="grow">
+          {progress != null ? (
+            <>
+              <div className="small" style={{ marginBottom: 6 }}>{progress < 100 ? `Fayllar yuklanmoqda: ${progress}%` : 'Server tekshirmoqda…'}</div>
+              <div className="progress" aria-label="Yuklash jarayoni"><div className="progress-bar" style={{ width: `${progress}%` }} /></div>
+            </>
+          ) : submitCount > 0 && xatoSoni > 0 ? (
+            <span className="field-error"><CircleAlert size={14} />{xatoSoni} ta maydonni to'g'rilang</span>
+          ) : (
+            <span className="small muted">Yuborilgandan keyin ariza "Tekshiruvda" holatiga o'tadi</span>
+          )}
+        </div>
         <Link to={tahrir ? `/arizalar/${id}` : '/arizalar'} className="btn btn-light">Bekor qilish</Link>
         <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-          {isSubmitting ? 'Yuborilmoqda…' : tahrir ? 'Qayta yuborish' : 'Yuborish'}
+          {isSubmitting ? <LoaderCircle size={16} className="spin" /> : <Send size={16} />}
+          {isSubmitting ? 'Yuborilmoqda' : tahrir ? 'Qayta yuborish' : 'Yuborish'}
         </button>
       </div>
     </form>

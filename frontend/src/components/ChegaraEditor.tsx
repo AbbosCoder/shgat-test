@@ -6,6 +6,7 @@ import Graphic from '@arcgis/core/Graphic'
 import Polygon from '@arcgis/core/geometry/Polygon'
 import Sketch from '@arcgis/core/widgets/Sketch'
 import * as webMercatorUtils from '@arcgis/core/geometry/support/webMercatorUtils'
+import { CircleAlert, CircleCheck, Trash2, TriangleAlert, Upload } from 'lucide-react'
 import { chegaraXatosi, parseGeoJson, polygonsOf, ringsToGeoJson } from '../lib/geo'
 import type { Chegara } from '../lib/types'
 
@@ -66,6 +67,9 @@ export default function ChegaraEditor({ value, onChange, error }: Props) {
       onChangeRef.current(g)
     }
     sketch.on('create', (e) => {
+      // Yangi chizish avvalgi chegarani almashtiradi: eski (ehtimol chala) poligon MultiPolygon'ga qo'shilib ketmasin.
+      // Bir nechta poligonli chegara GeoJSON fayl orqali yuklanadi.
+      if (e.state === 'start') layer.removeAll()
       if (e.state === 'complete') emit()
     })
     sketch.on('update', (e) => {
@@ -113,20 +117,24 @@ export default function ChegaraEditor({ value, onChange, error }: Props) {
     <div className="chegara-editor">
       <div className="chegara-toolbar">
         <label className="btn btn-light">
-          GeoJSON fayl yuklash
-          <input type="file" accept=".geojson,.json,application/geo+json,application/json" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+          <Upload size={16} />GeoJSON yuklash
+          <input type="file" accept=".geojson,.json,application/geo+json,application/json" hidden onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = '' }} />
         </label>
-        <span className="muted">yoki xaritaning o'ng tomonidagi asboblar bilan poligon chizing</span>
+        <span className="small muted">yoki xaritaning o'ng yuqorisidagi <b>poligon</b> asbobi bilan chizing — oxirgi nuqtada ikki marta bosing. Yangi chizilgan poligon avvalgisini almashtiradi</span>
         {value && (
-          <button type="button" className="btn btn-link" onClick={() => { lastEmitted.current = null; onChange(null) }}>
-            Tozalash
+          <button type="button" className="btn btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => { lastEmitted.current = null; onChange(null) }}>
+            <Trash2 size={15} />Tozalash
           </button>
         )}
       </div>
       <div ref={divRef} className="map map-editor" />
-      {faylXato && <p className="field-error">{faylXato}</p>}
-      {ogohlantirish ? <p className="field-error">⚠ {ogohlantirish}</p> : error && <p className="field-error">{error}</p>}
-      {value && !ogohlantirish && <p className="muted small">{describe(value)}</p>}
+      {faylXato && <p className="field-error" style={{ marginTop: 8 }}><CircleAlert size={14} />{faylXato}</p>}
+      {ogohlantirish ? (
+        <p className="field-error" style={{ marginTop: 8 }}><TriangleAlert size={14} />{ogohlantirish}</p>
+      ) : (
+        error && <p className="field-error" style={{ marginTop: 8 }}><CircleAlert size={14} />{error}</p>
+      )}
+      {value && !ogohlantirish && <p className="chegara-info"><CircleCheck size={15} />{describe(value)}</p>}
     </div>
   )
 }
