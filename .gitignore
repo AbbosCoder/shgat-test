@@ -7,3 +7,4 @@ backend/uploads/
 node_modules/
 frontend/dist/
 .vite/
+.claude/
