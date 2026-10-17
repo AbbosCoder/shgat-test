@@ -4,6 +4,7 @@ import { MAX_FILE_MB } from '../lib/constants'
 
 interface Props {
   label: string
+  hint?: string
   value: File | null | undefined
   onChange: (f: File | null) => void
   error?: string
@@ -13,7 +14,7 @@ interface Props {
 const mb = (n: number) => `${(n / 1024 / 1024).toFixed(n < 1024 * 1024 ? 2 : 1)} MB`
 
 /** Fayl maydoni: bosib tanlash yoki sudrab tashlash (drag & drop). */
-export default function FileInput({ label, value, onChange, error, mavjud }: Props) {
+export default function FileInput({ label, hint, value, onChange, error, mavjud }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [drag, setDrag] = useState(false)
 
@@ -25,6 +26,7 @@ export default function FileInput({ label, value, onChange, error, mavjud }: Pro
   return (
     <div className={`field ${error ? 'has-error' : ''}`}>
       <span className="label">{label}</span>
+      {hint && <span className="field-hint">{hint}</span>}
       {value ? (
         <div className="file-chip">
           <span className="fc-icon"><FileText size={18} /></span>

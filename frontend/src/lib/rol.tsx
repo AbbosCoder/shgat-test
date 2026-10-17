@@ -1,37 +1,93 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { setApiRol } from './api'
-import type { Rol } from './types'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { api, setApiToken, setOnUnauthorized } from './api'
+import type { Foydalanuvchi, Rol } from './types'
 
-const KEY = 'shgat.rol'
+const KEY = 'shgat.session'
 
-function initialRol(): Rol {
-  try {
-    const v = localStorage.getItem(KEY)
-    if (v === 'ariza_beruvchi' || v === 'tekshiruvchi') return v
-  } catch {
-    /* localStorage yopiq bo'lishi mumkin */
-  }
-  return 'ariza_beruvchi'
+interface Session {
+  token: string
+  muddat: string
+  foydalanuvchi: Foydalanuvchi
 }
 
-const RolContext = createContext<{ rol: Rol; setRol: (r: Rol) => void }>({ rol: 'ariza_beruvchi', setRol: () => {} })
+function loadSession(): Session | null {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) ?? 'null') as Session | null
+    if (s && new Date(s.muddat).getTime() > Date.now()) return s
+  } catch {
+    /* localStorage yopiq yoki buzilgan — sessiyasiz boshlaymiz */
+  }
+  return null
+}
 
-export function RolProvider({ children }: { children: ReactNode }) {
-  const [rol, setRolState] = useState<Rol>(() => {
-    const r = initialRol()
-    setApiRol(r)
-    return r
+interface AuthValue {
+  user: Foydalanuvchi | null
+  rol: Rol
+  login: (login: string, parol: string) => Promise<void>
+  logout: (sabab?: string) => void
+  /** Sessiya tugagani sababli chiqarilganda login sahifasida ko'rsatiladi */
+  chiqishSababi: string | null
+}
+
+const AuthContext = createContext<AuthValue>(null!)
+
+/** JWT sessiya: token localStorage'da, muddati tugasa yoki server 401 qaytarsa — avtomatik chiqish. */
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(() => {
+    const s = loadSession()
+    setApiToken(s?.token ?? null)
+    return s
   })
-  const setRol = (r: Rol) => {
-    setApiRol(r)
-    setRolState(r)
+  const [chiqishSababi, setChiqishSababi] = useState<string | null>(null)
+
+  const logout = useCallback((sabab?: string) => {
+    setApiToken(null)
+    setSession(null)
+    setChiqishSababi(sabab ?? null)
     try {
-      localStorage.setItem(KEY, r)
+      localStorage.removeItem(KEY)
     } catch {
       /* e'tiborsiz */
     }
-  }
-  return <RolContext.Provider value={{ rol, setRol }}>{children}</RolContext.Provider>
+  }, [])
+
+  const login = useCallback(async (login: string, parol: string) => {
+    const s = await api.login(login, parol)
+    setApiToken(s.token)
+    setSession(s)
+    setChiqishSababi(null)
+    try {
+      localStorage.setItem(KEY, JSON.stringify(s))
+    } catch {
+      /* e'tiborsiz */
+    }
+  }, [])
+
+  useEffect(() => {
+    setOnUnauthorized(() => logout('Sessiya muddati tugadi, qayta kiring.'))
+  }, [logout])
+
+  // Token muddati tugaydigan paytda o'zi chiqib ketadi
+  useEffect(() => {
+    if (!session) return
+    const ms = new Date(session.muddat).getTime() - Date.now()
+    const t = setTimeout(() => logout('Sessiya muddati tugadi, qayta kiring.'), Math.max(0, ms))
+    return () => clearTimeout(t)
+  }, [session, logout])
+
+  const value = useMemo<AuthValue>(
+    () => ({
+      user: session?.foydalanuvchi ?? null,
+      rol: session?.foydalanuvchi.rol ?? 'ariza_beruvchi',
+      login,
+      logout,
+      chiqishSababi,
+    }),
+    [session, login, logout, chiqishSababi],
+  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export const useRol = () => useContext(RolContext)
+export const useAuth = () => useContext(AuthContext)
+/** Sahifalar uchun qisqa yo'l: joriy foydalanuvchi roli */
+export const useRol = () => useContext(AuthContext)

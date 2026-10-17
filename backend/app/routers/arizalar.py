@@ -9,6 +9,7 @@ from app.db import get_db
 from app.deps import ARIZA_BERUVCHI, TEKSHIRUVCHI, get_rol, require
 from app.errors import ApiError, ValidationFailed
 from app.models import HOLAT_QAYTARILGAN, HOLAT_YUBORILGAN, Ariza, Fayl
+from app.security import sign_file, verify_file
 from app.schemas import (
     ArizaData,
     ArizaQisqa,
@@ -50,7 +51,7 @@ def _toliq(a: Ariza, request: Request) -> ArizaToliq:
             nomi=f.asl_nomi,
             hajm=f.hajm,
             mime=f.mime,
-            url=str(request.url_for("fayl_yuklab_olish", ariza_id=a.id, tur=f.tur)),
+            url=f'{request.url_for("fayl_yuklab_olish", ariza_id=a.id, tur=f.tur)}?t={sign_file(a.id, f.tur)}',
         )
         for f in sorted(a.fayllar, key=lambda f: list(FAYL_TURLARI).index(f.tur))
     ]
@@ -234,8 +235,10 @@ def ariza_qaytarish(
 
 
 @router.get("/{ariza_id}/fayllar/{tur}", name="fayl_yuklab_olish", summary="Biriktirilgan faylni yuklab olish")
-def fayl_yuklab_olish(ariza_id: int, tur: str, db: Session = Depends(get_db)):
-    # Brauzer <a href> orqali ochadi, shuning uchun X-Rol talab qilinmaydi
+def fayl_yuklab_olish(ariza_id: int, tur: str, t: str | None = None, db: Session = Depends(get_db)):
+    # Brauzer <a href> orqali ochadi (sarlavha yubora olmaydi), shuning uchun havola qisqa muddatli imzo bilan beriladi
+    if not verify_file(t, ariza_id, tur):
+        raise ApiError(403, "Havola muddati tugagan. Ariza sahifasini yangilab, qayta oching.")
     f = db.scalar(select(Fayl).where(Fayl.ariza_id == ariza_id, Fayl.tur == tur))
     if f is None:
         raise ApiError(404, "Fayl topilmadi")

@@ -8,7 +8,7 @@ Tasdiqlashda server ID raqam beradi va hujjat chegarasini Esri'ning ochiq namuna
 | Backend | Python 3.11, FastAPI, SQLAlchemy 2, Alembic, httpx |
 | Baza | PostgreSQL 16 (Docker) yoki SQLite (lokal ishga tushirish va testlar) |
 | Frontend | React 19 + TypeScript, Vite, ArcGIS Maps SDK for JavaScript, React Hook Form + Zod |
-| Testlar | pytest (57 ta), Vitest + Testing Library (23 ta) |
+| Testlar | pytest (65 ta), Vitest + Testing Library (23 ta) |
 
 **Ishlab turgan versiya: https://shgat.abbostech.uz** (Swagger: https://shgat.abbostech.uz/docs)
 
@@ -53,7 +53,7 @@ Rol yuqori o'ng burchakdagi "Rol" tanlagichida almashtiriladi.
 ### Testlar
 
 ```bash
-cd backend && pytest          # 57 ta test
+cd backend && pytest          # 65 ta test
 cd frontend && npm test       # 23 ta test
 ```
 
@@ -93,6 +93,26 @@ Yangilash bitta buyruq bilan:
 
 Kuzatish: `systemctl status shgat`, `journalctl -u shgat -f`.
 
+## Autentifikatsiya (JWT)
+
+Topshiriqdagi qo'shimcha talab — "Rollarni JWT bilan amalga oshirish" — bajarilgan:
+
+- `POST /api/auth/login` → `{token, muddat, foydalanuvchi}`; keyingi so'rovlarda `Authorization: Bearer <token>`.
+  Rol (`ariza_beruvchi` / `tekshiruvchi`) tokenning ichida, serverda tekshiriladi.
+- Parollar `scrypt` bilan xeshlanadi; noto'g'ri parol bilan 5 martadan ko'p urinish 5 daqiqaga bloklanadi (429).
+- Fayl havolalari `<a href>` orqali ochiladi va sarlavha yubora olmaydi, shuning uchun ular 1 soatlik imzo bilan beriladi.
+- Soddalashtirilgan `X-Rol` sarlavhasi faqat `ALLOW_X_ROL=true` bo'lganda ishlaydi (testlar, lokal), production'da o'chiq.
+
+Hisob yaratish:
+
+```bash
+cd backend && python -m app.cli create-user ali ariza_beruvchi --ism "Ali Valiyev"   # parol so'raladi
+```
+
+Lokal yoki Docker'da tez sinash uchun `SEED_USERS="ariza:parol123:ariza_beruvchi:Ali,tekshir:parol456:tekshiruvchi:Vali"`
+o'zgaruvchisini bering — baza bo'sh bo'lsa, shu hisoblar yaratiladi. Serverda esa `deploy/create-users.sh` parollarni serverning
+o'zida yaratib, faqat root o'qiy oladigan faylga yozadi.
+
 ## Sozlamalar (`backend/.env`)
 
 | O'zgaruvchi | Standart qiymat | Izoh |
@@ -104,6 +124,10 @@ Kuzatish: `systemctl status shgat`, `journalctl -u shgat -f`.
 | `ARCGIS_RETRIES` | `3` | Vaqtinchalik xatolarda jami urinishlar |
 | `CORS_ORIGINS` | `http://localhost:5173` | Vergul bilan ajratiladi |
 | `FRONTEND_DIR` | — | Berilsa, backend yig'ilgan frontend fayllarini ham beradi (production) |
+| `JWT_SECRET` | lokal kalit | Token imzosi. Production'da albatta almashtiriladi |
+| `JWT_TTL_MINUTES` | `480` | Sessiya muddati |
+| `ALLOW_X_ROL` | `false` | Soddalashtirilgan `X-Rol` sarlavhasini qabul qilish |
+| `SEED_USERS` | — | Bo'sh bazada yaratiladigan demo hisoblar |
 
 Frontend uchun: `VITE_API_URL` — backend manzili (bo'sh bo'lsa, proxy ishlatiladi).
 
@@ -179,6 +203,7 @@ Frontend (7.1):
 - [x] README
 
 Qo'shimcha:
+- [x] Rollar JWT bilan (login sahifasi, scrypt, urinishlar cheklovi)
 - [x] Docker Compose (PostgreSQL + API + frontend)
 - [x] OpenAPI/Swagger (`/docs`)
 - [x] ArcGIS so'rovlarida timeout va qayta urinish (eksponensial kutish)
@@ -187,7 +212,7 @@ Qo'shimcha:
 
 ## Bajarilmagan / cheklovlar
 
-- 3 ish kunlik muddat hisoblash, JWT rollar, Calcite komponentlari, lotin/kirill almashtirish — qilinmadi.
+- 3 ish kunlik muddat hisoblash, Calcite komponentlari, lotin/kirill almashtirish — qilinmadi.
 - Frontend haqiqiy backend'ga ulangan; alohida mock API (MSW) qo'shilmadi.
 - `data/soato.json` — namuna ro'yxat (viloyat markazlari). Rasmiy SOATO fayli berilsa, shu fayl almashtiriladi.
 - ArcGIS Maps SDK 5.x da `Sketch` vidjeti "deprecated" (web komponentga o'tish rejalashtirilgan), lekin topshiriqda

@@ -1,16 +1,46 @@
 import axios, { AxiosError } from 'axios'
-import type { ApiXato, ArizaData, ArizaQisqa, ArizaToliq, FaylTur, Rol, Soato } from './types'
+import type { ApiXato, ArizaData, ArizaQisqa, ArizaToliq, FaylTur, Foydalanuvchi, Soato } from './types'
 
 const http = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '' })
 
-let currentRol: Rol = 'ariza_beruvchi'
-export const setApiRol = (rol: Rol) => {
-  currentRol = rol
+// --- Sessiya: JWT token har bir so'rovga qo'shiladi; 401 kelsa — login sahifasiga ---
+let token: string | null = null
+let onUnauthorized: () => void = () => {}
+export const setApiToken = (t: string | null) => {
+  token = t
 }
+export const setOnUnauthorized = (fn: () => void) => {
+  onUnauthorized = fn
+}
+
+// --- Yuqoridagi yuklanish chizig'i uchun: nechta so'rov ketayotganini kuzatamiz ---
+let pending = 0
+const listeners = new Set<(n: number) => void>()
+export const subscribePending = (fn: (n: number) => void) => {
+  listeners.add(fn)
+  return () => void listeners.delete(fn)
+}
+const bump = (d: number) => {
+  pending = Math.max(0, pending + d)
+  listeners.forEach((fn) => fn(pending))
+}
+
 http.interceptors.request.use((cfg) => {
-  cfg.headers.set('X-Rol', currentRol)
+  if (token) cfg.headers.set('Authorization', `Bearer ${token}`)
+  bump(1)
   return cfg
 })
+http.interceptors.response.use(
+  (r) => {
+    bump(-1)
+    return r
+  },
+  (e: AxiosError) => {
+    bump(-1)
+    if (e.response?.status === 401 && token && !e.config?.url?.includes('/api/auth/login')) onUnauthorized()
+    return Promise.reject(e)
+  },
+)
 
 export class ApiError extends Error {
   status: number
@@ -48,6 +78,10 @@ export interface RoyxatFiltr {
 }
 
 export const api = {
+  login: (login: string, parol: string) =>
+    call<{ token: string; muddat: string; foydalanuvchi: Foydalanuvchi }>(http.post('/api/auth/login', { login, parol })),
+  me: () => call<Foydalanuvchi>(http.get('/api/auth/me')),
+
   royxat: (f: RoyxatFiltr) =>
     call<{ items: ArizaQisqa[]; jami: number }>(
       http.get('/api/arizalar', { params: Object.fromEntries(Object.entries(f).filter(([, v]) => v !== '' && v != null)) }),

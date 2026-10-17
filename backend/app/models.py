@@ -37,6 +37,17 @@ class Ariza(Base):
     fayllar: Mapped[list["Fayl"]] = relationship(back_populates="ariza", cascade="all, delete-orphan", lazy="selectin")
 
 
+class Foydalanuvchi(Base):
+    __tablename__ = "foydalanuvchilar"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    login: Mapped[str] = mapped_column(String(50), unique=True)
+    ism: Mapped[str] = mapped_column(String(100))
+    rol: Mapped[str] = mapped_column(String(20))
+    parol_hash: Mapped[str] = mapped_column(String(200))
+    yaratilgan: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class Fayl(Base):
     __tablename__ = "fayllar"
     __table_args__ = (UniqueConstraint("ariza_id", "tur", name="uq_fayl_ariza_tur"),)

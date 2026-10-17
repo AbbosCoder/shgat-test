@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -9,17 +10,29 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.deps import get_rol
 from app.errors import register_error_handlers
-from app.routers import arizalar
+from app.db import SessionLocal
+from app.routers import arizalar, auth
+from app.users import seed_users
 from app.schemas import Soato
 from app.soato import soato_list
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    with SessionLocal() as db:
+        seed_users(db)
+    yield
+
+
 app = FastAPI(
     title="Shaharsozlik hujjatlari reestri",
     description="Shaharsozlik hujjatlari arizalarini qabul qilish, tasdiqlash va chegarani ArcGIS qatlamiga yozish. "
-    "Har bir so'rovda `X-Rol: ariza_beruvchi` yoki `X-Rol: tekshiruvchi` sarlavhasi yuboriladi.",
-    version="1.0.0",
+    "Avval `POST /api/auth/login` orqali token oling, keyin har bir so'rovda `Authorization: Bearer <token>` yuboring. "
+    "Rol (ariza_beruvchi yoki tekshiruvchi) tokenning ichida.",
+    version="1.1.0",
+    lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +41,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 register_error_handlers(app)
+app.include_router(auth.router)
 app.include_router(arizalar.router)
 
 

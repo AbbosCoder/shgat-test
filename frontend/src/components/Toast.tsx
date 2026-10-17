@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { CircleAlert, CircleCheck } from 'lucide-react'
 
 type Tone = 'ok' | 'error'
@@ -17,12 +18,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={show}>
       {children}
       <div className="toasts" role="status" aria-live="polite">
-        {items.map((t) => (
-          <div key={t.id} className={`toast ${t.tone}`}>
-            {t.tone === 'ok' ? <CircleCheck size={18} /> : <CircleAlert size={18} />}
-            {t.text}
-          </div>
-        ))}
+        <AnimatePresence>
+          {items.map((t) => (
+            <motion.div
+              key={t.id}
+              layout
+              className={`toast ${t.tone}`}
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 40 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            >
+              {t.tone === 'ok' ? <CircleCheck size={18} /> : <CircleAlert size={18} />}
+              {t.text}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   )

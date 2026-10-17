@@ -1,0 +1,33 @@
+{
+ "type": "Feature",
+ "properties": {
+  "nomi": "Andijon shahri bosh rejasi chegarasi (namuna)"
+ },
+ "geometry": {
+  "type": "Polygon",
+  "coordinates": [
+   [
+    [
+     72.3,
+     40.75
+    ],
+    [
+     72.4,
+     40.75
+    ],
+    [
+     72.41,
+     40.8
+    ],
+    [
+     72.33,
+     40.815
+    ],
+    [
+     72.3,
+     40.75
+    ]
+   ]
+  ]
+ }
+}

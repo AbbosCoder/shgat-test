@@ -54,3 +54,9 @@ export interface ApiXato {
   xato: string
   maydonlar: Record<string, string>
 }
+
+export interface Foydalanuvchi {
+  login: string
+  ism: string
+  rol: Rol
+}

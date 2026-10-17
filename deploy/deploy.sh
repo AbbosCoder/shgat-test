@@ -25,6 +25,9 @@ S=/tmp/shgat-deploy
 rsync -a --delete $S/backend/ /opt/shgat/backend/
 rsync -a --delete $S/frontend/dist/ /opt/shgat/frontend/
 install -o root -g root -m 644 $S/deploy/shgat.service /etc/systemd/system/shgat.service
+# JWT kaliti serverning o'zida bir marta yaratiladi va hech qayerga chiqmaydi
+grep -q '^JWT_SECRET=' /etc/shgat/shgat.env || echo "JWT_SECRET=$(openssl rand -hex 32)" >> /etc/shgat/shgat.env
+grep -q '^ALLOW_X_ROL=' /etc/shgat/shgat.env || echo "ALLOW_X_ROL=false" >> /etc/shgat/shgat.env
 /opt/shgat/venv/bin/pip install -q --upgrade pip
 /opt/shgat/venv/bin/pip install -q -r /opt/shgat/backend/requirements.txt
 systemctl daemon-reload

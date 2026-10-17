@@ -14,6 +14,13 @@ export const FAYL_TURLARI: Record<FaylTur, string> = {
   tasdiqlovchi_hujjat: 'Tasdiqlovchi hujjat',
 }
 
+// Har bir fayl nima ekanini foydalanuvchiga tushuntirish uchun
+export const FAYL_TAVSIF: Record<FaylTur, string> = {
+  asosiy_chizma: 'Hududning chizilgan rejasi yoki xaritasi (masalan, bosh rejaning asosiy chizmasi)',
+  tushuntirish_xati: "Hujjatning matnli izohi: maqsadi, hudud tavsifi, asosiy ko'rsatkichlar",
+  tasdiqlovchi_hujjat: 'Hujjatni tasdiqlagan qaror yoki buyruqning skaner nusxasi',
+}
+
 export const MAX_FILE_MB = 20
 export const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024
 export const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png']

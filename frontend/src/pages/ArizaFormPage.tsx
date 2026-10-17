@@ -7,7 +7,7 @@ import ChegaraEditor from '../components/ChegaraEditor'
 import FileInput from '../components/FileInput'
 import { useToast } from '../components/Toast'
 import { api, ApiError } from '../lib/api'
-import { FAYL_TURLARI, HUJJAT_TURLARI } from '../lib/constants'
+import { FAYL_TAVSIF, FAYL_TURLARI, HUJJAT_TURLARI } from '../lib/constants'
 import { bolajakId } from '../lib/geo'
 import { arizaSchema, type ArizaForm } from '../lib/schema'
 import type { ArizaToliq, FaylTur, Soato } from '../lib/types'
@@ -76,7 +76,7 @@ export default function ArizaFormPage() {
       <p className="alert alert-warn">
         <TriangleAlert size={18} />
         <span>
-          Arizani faqat ariza beruvchi to'ldiradi — yuqorida "Ariza beruvchi" rolini tanlang.{' '}
+          Ariza yuborish faqat ariza beruvchi hisobi uchun. Siz tekshiruvchi sifatida kirgansiz.{' '}
           <Link to={tahrir ? `/arizalar/${id}` : '/arizalar'}>{tahrir ? 'Arizani ko\'rish' : 'Arizalar ro\'yxati'}</Link>
         </span>
       </p>
@@ -186,7 +186,7 @@ export default function ArizaFormPage() {
       <section className="card">
         <div className="card-head">
           <span className="step">2</span><h2>Hujjat chegarasi</h2>
-          <span className="hint">O'zbekiston hududida bo'lishi kerak</span>
+          <span className="hint">O'zbekiston hududida bo'lishi kerak · <a href="/namuna/andijon_chegara.geojson" download>namuna GeoJSON</a></span>
         </div>
         <div className="card-pad">
           <Controller
@@ -202,7 +202,10 @@ export default function ArizaFormPage() {
       <section className="card">
         <div className="card-head">
           <span className="step">3</span><h2>Fayllar</h2>
-          <span className="hint">{tahrir ? 'Faqat almashtiriladigan faylni tanlang' : '3 ta fayl majburiy'}</span>
+          <span className="hint">
+            {tahrir ? 'Faqat almashtiriladigan faylni tanlang' : '3 ta fayl majburiy'} ·{' '}
+            <a href="/namuna/namuna-fayllar.zip" download>namuna fayllar</a>
+          </span>
         </div>
         <div className="card-pad grid-3">
           {(Object.keys(FAYL_TURLARI) as FaylTur[]).map((t) => (
@@ -213,6 +216,7 @@ export default function ArizaFormPage() {
               render={({ field }) => (
                 <FileInput
                   label={FAYL_TURLARI[t]}
+                  hint={FAYL_TAVSIF[t]}
                   value={field.value as File | null}
                   onChange={(f) => { field.onChange(f); field.onBlur() }}
                   error={errors[t]?.message as string | undefined}

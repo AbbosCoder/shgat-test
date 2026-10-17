@@ -54,6 +54,7 @@ def arcgis():
 @pytest.fixture
 def client(tmp_path, monkeypatch, arcgis):
     monkeypatch.setattr(settings, "upload_dir", tmp_path / "uploads")
+    monkeypatch.setattr(settings, "allow_x_rol", True)  # eski testlar soddalashtirilgan X-Rol bilan
     engine = make_engine(f"sqlite:///{tmp_path / 'test.db'}")
     Base.metadata.create_all(engine)
     TestSession = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
@@ -67,6 +68,7 @@ def client(tmp_path, monkeypatch, arcgis):
 
     app.dependency_overrides[get_db] = _db
     app.dependency_overrides[get_arcgis] = lambda: arcgis
+    app.state.test_session = TestSession
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

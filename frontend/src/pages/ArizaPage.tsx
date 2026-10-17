@@ -7,6 +7,7 @@ import ChegaraMap from '../components/ChegaraMap'
 import HolatBadge from '../components/HolatBadge'
 import StatusTimeline from '../components/StatusTimeline'
 import { useToast } from '../components/Toast'
+import { useConfirm } from '../components/ConfirmDialog'
 import { api, tushunarliXato } from '../lib/api'
 import { FAYL_TURLARI } from '../lib/constants'
 import type { ArizaToliq } from '../lib/types'
@@ -16,6 +17,7 @@ export default function ArizaPage() {
   const { id } = useParams()
   const { rol } = useRol()
   const toast = useToast()
+  const confirm = useConfirm()
   const [a, setA] = useState<ArizaToliq | null>(null)
   const [xato, setXato] = useState<string | null>(null)
   const [amalXato, setAmalXato] = useState<string | null>(null)
@@ -33,7 +35,13 @@ export default function ArizaPage() {
   if (!a) return <div className="card card-pad stack">{[1, 2, 3, 4].map((i) => <div key={i} className="skeleton" />)}</div>
 
   const tasdiqlash = async () => {
-    if (!confirm('Arizani tasdiqlaysizmi? ID raqam beriladi va chegara ArcGIS qatlamiga yoziladi.')) return
+    const ok = await confirm({
+      title: 'Arizani tasdiqlaysizmi?',
+      text: `Hujjatga ${a.hujjat_turi}-${a.soato_kodi}-${a.tasdiq_sanasi.slice(0, 4)} raqami beriladi va chegara ArcGIS qatlamiga yoziladi. Bu amalni ortga qaytarib bo'lmaydi.`,
+      confirmText: 'Ha, tasdiqlash',
+      tone: 'success',
+    })
+    if (!ok) return
     setBusy('tasdiq')
     setAmalXato(null)
     try {

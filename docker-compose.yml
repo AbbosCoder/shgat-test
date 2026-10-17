@@ -18,6 +18,9 @@ services:
       DATABASE_URL: postgresql+psycopg://shgat:shgat@db:5432/shgat
       UPLOAD_DIR: /data/uploads
       CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+      JWT_SECRET: ${JWT_SECRET:-docker-lokal-kalit-almashtiring}
+      # Bo'sh bazada yaratiladigan hisoblar: "login:parol:rol:Ism,..." (README'ga qarang)
+      SEED_USERS: ${SEED_USERS:-}
     volumes:
       - uploads:/data/uploads
     ports:

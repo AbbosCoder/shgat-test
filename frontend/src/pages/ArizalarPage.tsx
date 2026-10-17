@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { motion } from 'motion/react'
 import { ChevronLeft, ChevronRight, CircleCheck, Clock, Files, Inbox, Plus, Undo2 } from 'lucide-react'
 import HolatBadge from '../components/HolatBadge'
 import { api } from '../lib/api'
@@ -68,14 +69,23 @@ export default function ArizalarPage() {
       </div>
 
       <div className="stats">
-        {STATS.map(({ key, label, icon: Icon }) => (
-          <button key={key || 'all'} className={`stat tone-${key || 'all'} ${holat === key ? 'on' : ''}`} onClick={() => update({ holat: key })}>
+        {STATS.map(({ key, label, icon: Icon }, i) => (
+          <motion.button
+            key={key || 'all'}
+            className={`stat tone-${key || 'all'} ${holat === key ? 'on' : ''}`}
+            onClick={() => update({ holat: key })}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, type: 'spring', stiffness: 300, damping: 26 }}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
             <span className="s-icon"><Icon size={20} /></span>
             <span>
               <div className="s-num">{stats[key] ?? '–'}</div>
               <div className="s-label">{label}</div>
             </span>
-          </button>
+          </motion.button>
         ))}
       </div>
 
@@ -130,8 +140,14 @@ export default function ArizalarPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.items.map((a) => (
-                  <tr key={a.id} onClick={() => navigate(`/arizalar/${a.id}`)}>
+                {data.items.map((a, i) => (
+                  <motion.tr
+                    key={a.id}
+                    onClick={() => navigate(`/arizalar/${a.id}`)}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i, 10) * 0.03, duration: 0.2 }}
+                  >
                     <td className="nowrap mono">
                       <Link to={`/arizalar/${a.id}`} onClick={(e) => e.stopPropagation()}>{a.id_raqam ?? `#${a.id}`}</Link>
                     </td>
@@ -143,7 +159,7 @@ export default function ArizalarPage() {
                     <td>{a.soato_nomi ?? a.soato_kodi}</td>
                     <td><HolatBadge holat={a.holat} /></td>
                     <td className="nowrap muted">{new Date(a.yaratilgan).toLocaleDateString('uz-UZ')}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

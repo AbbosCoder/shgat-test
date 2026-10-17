@@ -215,3 +215,72 @@ tbody tr:last-child td { border-bottom: 0; }
   .action-bar { flex-wrap: wrap; }
   th:nth-child(4), td:nth-child(4), th:nth-child(6), td:nth-child(6) { display: none; }
 }
+
+/* ---------- interaktivlik ---------- */
+.btn { transition: background .15s, border-color .15s, transform .08s, box-shadow .15s; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn-primary:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(37, 99, 235, .25); }
+.btn-block { width: 100%; padding: .7rem 1rem; font-size: .95rem; }
+.field-hint { font-size: .78rem; color: var(--muted); margin-top: -.15rem; line-height: 1.35; }
+.card { transition: box-shadow .2s; }
+.top-loader { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100; background: linear-gradient(90deg, #60a5fa, #2563eb); transform-origin: left; box-shadow: 0 0 8px rgba(37, 99, 235, .5); }
+
+/* ---------- foydalanuvchi menyusi ---------- */
+.user-menu { position: relative; }
+.user-btn { display: flex; align-items: center; gap: .6rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); color: #fff; border-radius: 10px; padding: .3rem .6rem .3rem .3rem; cursor: pointer; font: inherit; transition: background .15s; }
+.user-btn:hover { background: rgba(255,255,255,.14); }
+.avatar { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #60a5fa, #2563eb); display: grid; place-items: center; font-weight: 700; font-size: .85rem; }
+.user-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+.user-name { font-size: .86rem; font-weight: 600; }
+.user-rol { display: flex; align-items: center; gap: .25rem; font-size: .72rem; color: #b9cbe3; }
+.dropdown { position: absolute; right: 0; top: calc(100% + 8px); min-width: 220px; background: #fff; color: var(--text); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(16,24,40,.16); padding: .4rem; transform-origin: top right; }
+.dd-head { padding: .55rem .65rem .65rem; border-bottom: 1px solid var(--line-2); margin-bottom: .3rem; }
+.dd-item { display: flex; align-items: center; gap: .5rem; width: 100%; border: 0; background: none; font: inherit; font-size: .9rem; padding: .55rem .65rem; border-radius: 8px; cursor: pointer; color: var(--danger); }
+.dd-item:hover { background: var(--danger-soft); }
+
+/* ---------- tasdiqlash oynasi ---------- */
+.modal-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(15, 23, 42, .45); backdrop-filter: blur(3px); display: grid; place-items: center; padding: 1rem; }
+.modal { width: 100%; max-width: 440px; background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.modal h2 { font-size: 1.1rem; margin: .8rem 0 .4rem; }
+.modal p { font-size: .92rem; line-height: 1.5; }
+.modal .actions { margin-top: 1.4rem; }
+.modal-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; }
+.modal-icon.tone-primary { background: var(--primary-soft); color: var(--primary); }
+.modal-icon.tone-success { background: var(--ok-soft); color: var(--ok); }
+.modal-icon.tone-danger { background: var(--danger-soft); color: var(--danger); }
+
+/* ---------- login ---------- */
+.login-page { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; background: #fff; }
+.login-hero { position: relative; overflow: hidden; background: linear-gradient(150deg, #0b3b6f 0%, #0f2a4d 55%, #0a1f3a 100%); color: #fff; display: flex; align-items: center; padding: 3rem; }
+.hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(ellipse at 30% 40%, #000 30%, transparent 75%); }
+.hero-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; }
+.hero-blob.b1 { width: 340px; height: 340px; background: #2563eb; top: -80px; right: -60px; }
+.hero-blob.b2 { width: 280px; height: 280px; background: #0ea5e9; bottom: -90px; left: -40px; opacity: .35; }
+.hero-content { position: relative; max-width: 460px; }
+.hero-brand { display: flex; align-items: center; gap: .6rem; font-size: .9rem; color: #c7d7ee; margin-bottom: 1.6rem; }
+.login-hero h1 { font-size: 2.2rem; line-height: 1.15; letter-spacing: -.02em; }
+.hero-sub { margin-top: .9rem; color: #c7d7ee; font-size: 1rem; line-height: 1.55; }
+.hero-features { list-style: none; padding: 0; margin: 2rem 0 0; display: flex; flex-direction: column; gap: .8rem; }
+.hero-features li { display: flex; align-items: center; gap: .75rem; font-size: .92rem; color: #e2eaf6; }
+.hero-features li span { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,.1); display: grid; place-items: center; flex-shrink: 0; }
+.login-main { display: grid; place-items: center; padding: 2rem 1.25rem; background: var(--bg); }
+.login-card { width: 100%; max-width: 400px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 2rem; box-shadow: 0 10px 40px rgba(16,24,40,.08); }
+.login-card h2 { font-size: 1.4rem; font-weight: 650; }
+.login-card > div > .muted { margin: .3rem 0 1.4rem; font-size: .92rem; }
+.login-card .field { margin-bottom: 1rem; }
+.login-card .alert { margin-bottom: 1rem; overflow: hidden; }
+.input-icon { position: relative; display: flex; align-items: center; }
+.input-icon > svg { position: absolute; left: .75rem; color: var(--muted); pointer-events: none; }
+.input-icon input { padding-left: 2.4rem; padding-top: .65rem; padding-bottom: .65rem; }
+.input-icon .eye { position: absolute; right: .4rem; border: 0; background: none; color: var(--muted); padding: .35rem; border-radius: 7px; cursor: pointer; display: grid; place-items: center; }
+.input-icon .eye:hover { background: #f3f4f6; color: var(--text); }
+.input-icon input#parol { padding-right: 2.6rem; }
+.login-foot { text-align: center; margin-top: 1.2rem; }
+
+@media (max-width: 860px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-hero { padding: 2rem 1.25rem 2.5rem; }
+  .login-hero h1 { font-size: 1.6rem; }
+  .hero-features { display: none; }
+  .user-text { display: none; }
+}
