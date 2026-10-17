@@ -1,7 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="780" viewBox="0 0 1600 780" font-family="Segoe UI, Inter, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860" font-family="Segoe UI, Inter, Arial, sans-serif">
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M1 1L9 5L1 9z" fill="#475569"/>
+    </marker>
+    <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9z" fill="#7c3aed"/>
     </marker>
     <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M1 1L9 5L1 9z" fill="#0f766e"/>
@@ -14,7 +17,7 @@
     </style>
   </defs>
 
-  <rect width="1600" height="780" fill="#ffffff"/>
+  <rect width="1600" height="860" fill="#ffffff"/>
   <text x="60" y="68" font-size="30" font-weight="800" fill="#0b3b6f">ShGAT — tizim qanday ishlaydi</text>
   <text x="60" y="98" class="sub">https://shgat.abbostech.uz</text>
 
@@ -88,7 +91,25 @@
     <text y="148" text-anchor="middle" class="sub">Esri xarita qatlami</text>
   </g>
 
+  <!-- 6. Dasturchi: monitor + terminal -->
+  <g transform="translate(190 660)">
+    <circle r="78" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="2"/>
+    <g class="ico" stroke="#7c3aed">
+      <rect x="-42" y="-34" width="84" height="56" rx="6"/>
+      <path d="M-26 -16 L-14 -6 L-26 4"/>
+      <line x1="-6" y1="6" x2="14" y2="6"/>
+      <line x1="0" y1="22" x2="0" y2="36"/>
+      <line x1="-20" y1="38" x2="20" y2="38"/>
+    </g>
+    <text y="122" text-anchor="middle" class="name">Dasturchi</text>
+    <text y="148" text-anchor="middle" class="sub">o'z kompyuteridan</text>
+  </g>
+
   <!-- strelkalar -->
+  <line x1="274" y1="660" x2="414" y2="660" stroke="#7c3aed" stroke-width="3" marker-end="url(#p)"/>
+  <text x="344" y="632" text-anchor="middle" font-size="15" font-weight="700" fill="#7c3aed">SSH · 22-port</text>
+  <text x="344" y="690" text-anchor="middle" font-size="14" fill="#7c3aed">SSH kalit bilan</text>
+  <text x="344" y="710" text-anchor="middle" font-size="14" fill="#7c3aed">deploy.sh</text>
   <line x1="274" y1="360" x2="492" y2="360" stroke="#475569" stroke-width="3" marker-end="url(#a)"/>
   <text x="383" y="346" text-anchor="middle" class="lbl">HTTPS</text>
 
