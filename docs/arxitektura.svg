@@ -1,157 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" font-family="Segoe UI, Inter, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="780" viewBox="0 0 1600 780" font-family="Segoe UI, Inter, Arial, sans-serif">
   <defs>
-    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M1 1L9 5L1 9z" fill="#334155"/>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9z" fill="#475569"/>
     </marker>
-    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M1 1L9 5L1 9z" fill="#0f766e"/>
     </marker>
-    <marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M1 1L9 5L1 9z" fill="#7c3aed"/>
-    </marker>
     <style>
-      .t { font-size: 17px; font-weight: 700; fill: #0f172a; }
-      .s { font-size: 13.5px; fill: #475569; }
-      .m { font-size: 13px; fill: #334155; font-family: Consolas, 'Cascadia Code', monospace; }
-      .l { font-size: 13px; fill: #334155; font-weight: 600; }
-      .lg { font-size: 13px; fill: #0f766e; font-weight: 600; }
-      .lp { font-size: 13px; fill: #7c3aed; font-weight: 600; }
-      .h { font-size: 15px; font-weight: 700; fill: #0b3b6f; letter-spacing: .3px; }
+      .name { font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .sub { font-size: 16px; fill: #64748b; }
+      .lbl { font-size: 15px; font-weight: 600; fill: #475569; }
+      .ico { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
     </style>
   </defs>
 
-  <rect width="1600" height="1000" fill="#f8fafc"/>
-  <text x="40" y="52" font-size="28" font-weight="800" fill="#0b3b6f">ShGAT — server arxitekturasi</text>
-  <text x="40" y="80" class="s">https://shgat.abbostech.uz · Ubuntu 24.04 · Docker'siz: systemd xizmati + reverse proxy (Caddy) + Let's Encrypt</text>
+  <rect width="1600" height="780" fill="#ffffff"/>
+  <text x="60" y="68" font-size="30" font-weight="800" fill="#0b3b6f">ShGAT — tizim qanday ishlaydi</text>
+  <text x="60" y="98" class="sub">https://shgat.abbostech.uz</text>
 
-  <!-- ========== chap: foydalanuvchi, DNS, dasturchi ========== -->
-  <g>
-    <rect x="40" y="150" width="230" height="96" rx="12" fill="#fff" stroke="#cbd5e1"/>
-    <text x="60" y="180" class="t">DNS · ahost.uz</text>
-    <text x="60" y="204" class="m">shgat.abbostech.uz</text>
-    <text x="60" y="226" class="m">A → 77.83.192.83</text>
-  </g>
-  <g>
-    <rect x="40" y="380" width="230" height="130" rx="12" fill="#eff6ff" stroke="#93c5fd"/>
-    <text x="60" y="412" class="t">Foydalanuvchi</text>
-    <text x="60" y="436" class="s">Brauzer: React ilovasi</text>
-    <text x="60" y="458" class="s">Login → JWT token</text>
-    <text x="60" y="480" class="s">ArcGIS Maps SDK xaritasi</text>
-  </g>
-  <g>
-    <rect x="40" y="770" width="230" height="130" rx="12" fill="#f5f3ff" stroke="#c4b5fd"/>
-    <text x="60" y="802" class="t">Dasturchi</text>
-    <text x="60" y="826" class="m">./deploy/deploy.sh</text>
-    <text x="60" y="850" class="s">build → yuklash → pip →</text>
-    <text x="60" y="872" class="s">systemctl restart → health</text>
-  </g>
-  <line x1="155" y1="378" x2="155" y2="250" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#a)"/>
-  <text x="60" y="320" class="s">1. nom → IP</text>
+  <!-- server chegarasi -->
+  <rect x="420" y="215" width="640" height="510" rx="26" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="450" y="256" font-size="18" font-weight="700" fill="#475569">Server · Ubuntu</text>
 
-  <!-- ========== server konteyneri ========== -->
-  <rect x="320" y="120" width="880" height="820" rx="20" fill="#ffffff" stroke="#0b3b6f" stroke-width="2"/>
-  <rect x="320" y="120" width="880" height="44" rx="20" fill="#0b3b6f"/>
-  <rect x="320" y="144" width="880" height="20" fill="#0b3b6f"/>
-  <text x="344" y="148" font-size="16" font-weight="700" fill="#fff">VPS · Ubuntu 24.04 · 2 CPU · 4 GB RAM · 77.83.192.83</text>
-
-  <!-- firewall -->
-  <rect x="340" y="184" width="70" height="736" rx="10" fill="#fef2f2" stroke="#fca5a5"/>
-  <text transform="translate(382 640) rotate(-90)" text-anchor="middle" font-size="15" font-weight="700" fill="#b91c1c">ufw firewall · ochiq: 22, 80, 443</text>
-
-  <!-- vidzo -->
-  <rect x="450" y="190" width="300" height="112" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="6 4"/>
-  <text x="470" y="220" class="t" fill="#64748b">Vidzo konteynerlari</text>
-  <text x="470" y="244" class="s">alohida loyiha: vidzostudio.com</text>
-  <text x="470" y="266" class="s">web, api, worker, postgres, redis</text>
-  <text x="470" y="288" class="s">Caddy ikkalasiga umumiy</text>
-
-  <!-- caddy -->
-  <rect x="450" y="360" width="300" height="170" rx="12" fill="#ecfeff" stroke="#22d3ee" stroke-width="1.6"/>
-  <text x="470" y="392" class="t">Caddy (Docker konteyner)</text>
-  <text x="470" y="416" class="m">:80 → :443 (HTTPS)</text>
-  <text x="470" y="440" class="s">Let's Encrypt — avtomatik sertifikat</text>
-  <text x="470" y="462" class="s">reverse proxy, gzip/zstd, HSTS</text>
-  <text x="470" y="484" class="s">so'rov hajmi ≤ 70 MB</text>
-  <text x="470" y="506" class="m">shgat.abbostech.uz → 172.17.0.1:8090</text>
-
-  <!-- uvicorn -->
-  <rect x="850" y="360" width="320" height="200" rx="12" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.6"/>
-  <text x="870" y="392" class="t">shgat.service (systemd)</text>
-  <text x="870" y="416" class="m">uvicorn 172.17.0.1:8090 · 2 worker</text>
-  <text x="870" y="440" class="s">FastAPI: /api/* (JWT, arizalar, fayllar)</text>
-  <text x="870" y="462" class="s">React ilovasining tayyor fayllari</text>
-  <text x="870" y="484" class="s">foydalanuvchi: shgat (login qilolmaydi)</text>
-  <text x="870" y="506" class="s">ProtectSystem=strict, Restart=on-failure</text>
-  <text x="870" y="528" class="s">ishga tushishda: alembic upgrade head</text>
-  <text x="870" y="548" class="m">journalctl -u shgat</text>
-
-  <!-- code -->
-  <rect x="450" y="640" width="300" height="150" rx="12" fill="#faf5ff" stroke="#c4b5fd"/>
-  <text x="470" y="672" class="t">Kod va sozlamalar</text>
-  <text x="470" y="696" class="m">/opt/shgat/backend, frontend</text>
-  <text x="470" y="718" class="m">/opt/shgat/venv</text>
-  <text x="470" y="740" class="m">/etc/shgat/shgat.env</text>
-  <text x="470" y="762" class="s">xizmat uchun faqat o'qish</text>
-  <text x="470" y="780" class="s">JWT kaliti serverning o'zida</text>
-
-  <!-- data -->
-  <rect x="850" y="640" width="320" height="150" rx="12" fill="#fffbeb" stroke="#fbbf24"/>
-  <text x="870" y="672" class="t">Ma'lumotlar</text>
-  <text x="870" y="696" class="m">/var/lib/shgat/shgat.db</text>
-  <text x="870" y="718" class="m">/var/lib/shgat/uploads/</text>
-  <text x="870" y="740" class="m">/var/lib/shgat/backups/</text>
-  <text x="870" y="762" class="s">cron: har kuni 03:30 SQLite zaxira,</text>
-  <text x="870" y="780" class="s">14 kun saqlanadi</text>
-
-  <text x="450" y="860" class="h">Xavfsizlik:</text>
-  <text x="550" y="860" class="s">ilova faqat docker0 da (:8090, ufw faqat Docker tarmog'i uchun ochiq) — Internetdan ko'rinmaydi;</text>
-  <text x="550" y="882" class="s">parollar scrypt; 5 noto'g'ri urinish → 5 daqiqa blok; fayl havolalari 1 soatlik imzo bilan.</text>
-
-  <!-- ========== o'ng: tashqi xizmatlar ========== -->
-  <g>
-    <rect x="1275" y="330" width="285" height="150" rx="12" fill="#fff" stroke="#0f766e" stroke-width="1.6"/>
-    <text x="1295" y="362" class="t">Esri ArcGIS</text>
-    <text x="1295" y="386" class="m">sampleserver6 · Wildfire</text>
-    <text x="1295" y="408" class="m">FeatureServer/2</text>
-    <text x="1295" y="432" class="s">Web Mercator (102100), token yo'q</text>
-    <text x="1295" y="454" class="s">applyEdits · query</text>
-  </g>
-  <g>
-    <rect x="1275" y="560" width="285" height="110" rx="12" fill="#fff" stroke="#cbd5e1"/>
-    <text x="1295" y="592" class="t">Asos xarita</text>
-    <text x="1295" y="616" class="s">OpenStreetMap kafellari</text>
-    <text x="1295" y="638" class="s">brauzer to'g'ridan-to'g'ri yuklaydi</text>
+  <!-- 1. Foydalanuvchi: noutbuk + brauzer -->
+  <g transform="translate(190 360)">
+    <circle r="78" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/>
+    <g class="ico" stroke="#2563eb">
+      <rect x="-40" y="-32" width="80" height="52" rx="6"/>
+      <line x1="-40" y1="-20" x2="40" y2="-20"/>
+      <circle cx="-32" cy="-26" r="1.2" fill="#2563eb"/>
+      <circle cx="-25" cy="-26" r="1.2" fill="#2563eb"/>
+      <path d="M-52 30 L52 30 L44 38 L-44 38 Z"/>
+    </g>
+    <text y="122" text-anchor="middle" class="name">Foydalanuvchi</text>
+    <text y="148" text-anchor="middle" class="sub">Veb-brauzer</text>
   </g>
 
-  <!-- ========== strelkalar ========== -->
-  <!-- foydalanuvchi -> caddy -->
-  <line x1="272" y1="445" x2="446" y2="445" stroke="#334155" stroke-width="2.2" marker-end="url(#a)"/>
-  <text x="280" y="433" class="l">2. HTTPS</text><text x="280" y="468" class="l">:443</text>
-  <!-- caddy -> uvicorn -->
-  <line x1="752" y1="445" x2="846" y2="445" stroke="#334155" stroke-width="2.2" marker-end="url(#a)"/>
-  <text x="760" y="433" class="l">3. :8090</text>
-  <text x="760" y="468" class="s">docker0</text>
-  <!-- uvicorn -> data -->
-  <line x1="1010" y1="562" x2="1010" y2="636" stroke="#334155" stroke-width="2" marker-end="url(#a)"/>
-  <text x="1020" y="604" class="s">o'qish / yozish</text>
-  <!-- uvicorn -> arcgis -->
-  <path d="M1172 420 L1271 420" stroke="#0f766e" stroke-width="2.2" fill="none" marker-end="url(#ag)"/>
-  <text x="1176" y="408" font-size="12" font-weight="600" fill="#0f766e">4. tasdiqlash</text>
-  <text x="1176" y="440" font-size="12" fill="#0f766e">timeout,</text><text x="1176" y="456" font-size="12" fill="#0f766e">retry</text>
-  <!-- brauzer -> arcgis / basemap (yuqoridan aylanib) -->
-  <path d="M272 400 L288 400 L288 118 Q288 104 302 104 L1248 104 Q1262 104 1262 118 L1262 360 L1271 360" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5" fill="none" marker-end="url(#ag)"/>
-  <text x="760" y="97" class="lg">5. brauzer chegarani ArcGIS qatlamidan o'zi oladi (FeatureLayer, objectid filtri)</text>
-  <path d="M1262 360 L1262 600 L1271 600" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="7 5" fill="none" marker-end="url(#a)"/>
-  <!-- dasturchi -> server -->
-  <path d="M272 835 L430 835 L430 715 L446 715" stroke="#7c3aed" stroke-width="2" fill="none" marker-end="url(#ap)"/>
-  <text x="282" y="823" class="lp">SSH :22 · rsync</text>
-
-  <!-- legend -->
-  <g transform="translate(1275 760)">
-    <text x="0" y="0" class="h">Belgilar</text>
-    <line x1="0" y1="24" x2="40" y2="24" stroke="#334155" stroke-width="2.2"/><text x="52" y="29" class="s">asosiy so'rov yo'li</text>
-    <line x1="0" y1="50" x2="40" y2="50" stroke="#0f766e" stroke-width="2" stroke-dasharray="7 5"/><text x="52" y="55" class="s">tashqi xizmatga (ArcGIS)</text>
-    <line x1="0" y1="76" x2="40" y2="76" stroke="#7c3aed" stroke-width="2"/><text x="52" y="81" class="s">deploy (dasturchi → server)</text>
-    <line x1="0" y1="102" x2="40" y2="102" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 4"/><text x="52" y="107" class="s">yordamchi (DNS, asos xarita)</text>
+  <!-- 2. Caddy: qalqon + qulf -->
+  <g transform="translate(580 360)">
+    <circle r="78" fill="#ecfeff" stroke="#a5f3fc" stroke-width="2"/>
+    <g class="ico" stroke="#0891b2">
+      <path d="M0 -44 L36 -30 L36 2 C36 26 18 40 0 48 C-18 40 -36 26 -36 2 L-36 -30 Z"/>
+      <rect x="-14" y="-4" width="28" height="22" rx="4"/>
+      <path d="M-8 -4 V-12 A8 8 0 0 1 8 -12 V-4"/>
+    </g>
+    <text y="122" text-anchor="middle" class="name">Caddy</text>
+    <text y="148" text-anchor="middle" class="sub">HTTPS · reverse proxy</text>
   </g>
+
+  <!-- 3. Backend: server stoykasi -->
+  <g transform="translate(900 360)">
+    <circle r="78" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="2"/>
+    <g class="ico" stroke="#16a34a">
+      <rect x="-36" y="-40" width="72" height="22" rx="5"/>
+      <rect x="-36" y="-11" width="72" height="22" rx="5"/>
+      <rect x="-36" y="18" width="72" height="22" rx="5"/>
+      <line x1="-24" y1="-29" x2="-12" y2="-29"/>
+      <line x1="-24" y1="0" x2="-12" y2="0"/>
+      <line x1="-24" y1="29" x2="-12" y2="29"/>
+      <circle cx="24" cy="-29" r="2" fill="#16a34a"/>
+      <circle cx="24" cy="0" r="2" fill="#16a34a"/>
+      <circle cx="24" cy="29" r="2" fill="#16a34a"/>
+    </g>
+    <text y="122" text-anchor="middle" class="name">Backend</text>
+    <text y="148" text-anchor="middle" class="sub">FastAPI · systemd</text>
+  </g>
+
+  <!-- 4. Baza: silindr -->
+  <g transform="translate(900 618)">
+    <circle r="62" fill="#fffbeb" stroke="#fde68a" stroke-width="2"/>
+    <g class="ico" stroke="#d97706">
+      <ellipse cx="0" cy="-24" rx="28" ry="9"/>
+      <path d="M-28 -24 V22 A28 9 0 0 0 28 22 V-24"/>
+      <path d="M-28 -1 A28 9 0 0 0 28 -1"/>
+    </g>
+    <text x="-80" y="-6" text-anchor="end" class="name">Ma'lumotlar bazasi</text>
+    <text x="-80" y="20" text-anchor="end" class="sub">arizalar · fayllar</text>
+  </g>
+
+  <!-- 5. ArcGIS: bulut -->
+  <g transform="translate(1340 360)">
+    <circle r="78" fill="#f0fdfa" stroke="#99f6e4" stroke-width="2"/>
+    <g class="ico" stroke="#0f766e">
+      <path d="M-30 22 H32 A20 20 0 0 0 30 -18 A28 28 0 0 0 -22 -12 A18 18 0 0 0 -30 22 Z"/>
+    </g>
+    <text y="122" text-anchor="middle" class="name">ArcGIS</text>
+    <text y="148" text-anchor="middle" class="sub">Esri xarita qatlami</text>
+  </g>
+
+  <!-- strelkalar -->
+  <line x1="274" y1="360" x2="492" y2="360" stroke="#475569" stroke-width="3" marker-end="url(#a)"/>
+  <text x="383" y="346" text-anchor="middle" class="lbl">HTTPS</text>
+
+  <line x1="664" y1="360" x2="812" y2="360" stroke="#475569" stroke-width="3" marker-end="url(#a)"/>
+
+  <line x1="900" y1="520" x2="900" y2="550" stroke="#475569" stroke-width="3" marker-end="url(#a)"/>
+
+  <line x1="984" y1="360" x2="1252" y2="360" stroke="#0f766e" stroke-width="3" marker-end="url(#g)"/>
+  <text x="1160" y="346" text-anchor="middle" font-size="15" font-weight="600" fill="#0f766e">chegarani yozish</text>
+
+  <path d="M190 276 C 190 60, 1340 60, 1340 270" stroke="#0f766e" stroke-width="2.4" stroke-dasharray="9 7" fill="none" marker-end="url(#g)"/>
+  <text x="765" y="104" text-anchor="middle" font-size="15" font-weight="600" fill="#0f766e">xaritani ko'rsatish (brauzer ArcGIS qatlamidan o'zi oladi)</text>
 </svg>
