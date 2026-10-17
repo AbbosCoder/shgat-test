@@ -59,6 +59,8 @@ cd frontend && npm test       # 23 ta test
 
 ## Serverga deploy (Docker'siz: systemd + reverse proxy)
 
+![Server arxitekturasi](docs/arxitektura.png)
+
 Jonli versiya Ubuntu 24.04 serverda Docker'siz ishlaydi:
 
 ```
