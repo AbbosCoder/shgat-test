@@ -19,5 +19,8 @@ class Settings(BaseSettings):
     max_file_size: int = 20 * 1024 * 1024
     cors_origins: str = "http://localhost:5173"
 
+    # Production'da frontend'ning yig'ilgan fayllari (frontend/dist). Berilsa, API ularni ham beradi.
+    frontend_dir: Path | None = None
+
 
 settings = Settings()

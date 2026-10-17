@@ -1,0 +1,30 @@
+[Unit]
+Description=ShGAT — shaharsozlik hujjatlari reestri (FastAPI)
+# docker0 interfeysi (172.17.0.1) Docker bilan birga ko'tariladi — Caddy konteyneri shu manzil orqali ulanadi
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shgat
+Group=shgat
+WorkingDirectory=/opt/shgat/backend
+EnvironmentFile=/etc/shgat/shgat.env
+ExecStartPre=/opt/shgat/venv/bin/alembic upgrade head
+# Faqat docker0 manzilida tinglaydi: tashqi tarmoqdan ko'rinmaydi, Caddy esa ulanadi.
+# --proxy-headers: Caddy yuborgan X-Forwarded-Proto bo'yicha havolalar https:// bilan yasaladi.
+ExecStart=/opt/shgat/venv/bin/uvicorn app.main:app \
+    --host 172.17.0.1 --port 8090 --workers 2 \
+    --proxy-headers --forwarded-allow-ips 172.16.0.0/12
+Restart=on-failure
+RestartSec=3
+
+# Himoya: xizmat faqat o'z ma'lumot papkasiga yoza oladi
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/shgat
+
+[Install]
+WantedBy=multi-user.target

@@ -1,7 +1,10 @@
 import logging
+from pathlib import Path
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.deps import get_rol
@@ -36,3 +39,22 @@ def soato(_: str = Depends(get_rol)):
 @app.get("/api/health", include_in_schema=False)
 def health():
     return {"ok": True}
+
+
+def mount_frontend(app: FastAPI, dist: Path) -> None:
+    """Yig'ilgan SPA'ni beradi: mavjud fayl bo'lsa o'zi, aks holda index.html (React Router yo'llari uchun)."""
+    index = dist / "index.html"
+    app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str):
+        if path.startswith("api/"):
+            raise HTTPException(404, "Topilmadi")
+        candidate = (dist / path).resolve()
+        if path and dist.resolve() in candidate.parents and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(index, headers={"Cache-Control": "no-cache"})
+
+
+if settings.frontend_dir and (settings.frontend_dir / "index.html").is_file():
+    mount_frontend(app, settings.frontend_dir)
