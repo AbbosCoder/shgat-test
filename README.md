@@ -8,7 +8,9 @@ Tasdiqlashda server ID raqam beradi va hujjat chegarasini Esri'ning ochiq namuna
 | Backend | Python 3.11, FastAPI, SQLAlchemy 2, Alembic, httpx |
 | Baza | PostgreSQL 16 (Docker) yoki SQLite (lokal ishga tushirish va testlar) |
 | Frontend | React 19 + TypeScript, Vite, ArcGIS Maps SDK for JavaScript, React Hook Form + Zod |
-| Testlar | pytest (56 ta), Vitest + Testing Library (23 ta) |
+| Testlar | pytest (57 ta), Vitest + Testing Library (23 ta) |
+
+**Ishlab turgan versiya: https://shgat.abbostech.uz** (Swagger: https://shgat.abbostech.uz/docs)
 
 ## Ishga tushirish
 
@@ -51,9 +53,45 @@ Rol yuqori o'ng burchakdagi "Rol" tanlagichida almashtiriladi.
 ### Testlar
 
 ```bash
-cd backend && pytest          # 56 ta test
+cd backend && pytest          # 57 ta test
 cd frontend && npm test       # 23 ta test
 ```
+
+## Serverga deploy (Docker'siz: systemd + reverse proxy)
+
+Jonli versiya Ubuntu 24.04 serverda Docker'siz ishlaydi:
+
+```
+Internet → :443 Caddy (Let's Encrypt) → 172.17.0.1:8090 uvicorn (systemd: shgat.service) → SQLite
+```
+
+- **systemd xizmati** (`deploy/shgat.service`) — alohida `shgat` foydalanuvchisi nomidan ishlaydi, ishga tushishdan
+  oldin migratsiyalarni qo'llaydi, yiqilsa qayta ko'tariladi. `ProtectSystem=strict`: xizmat faqat
+  `/var/lib/shgat` ga yoza oladi, kod (`/opt/shgat`) uning uchun faqat o'qish uchun.
+- **Tarmoq:** uvicorn faqat `docker0` manzilida (172.17.0.1) tinglaydi. Serverdagi mavjud reverse proxy (Caddy,
+  Docker konteynerda) shu manzil orqali ulanadi; `ufw` da 8090 faqat Docker tarmoqlari uchun ochiq, tashqaridan yopiq.
+- **HTTPS** — Caddy sertifikatni Let's Encrypt'dan avtomatik oladi va yangilaydi. Uvicorn `--proxy-headers` bilan
+  ishlaydi, shuning uchun fayl havolalari `https://` bilan yasaladi. Nginx bilan ham xuddi shu sxema ishlaydi
+  (`proxy_pass http://172.17.0.1:8090;` + certbot).
+- **Frontend** — `npm run build` natijasini backend o'zi beradi (`FRONTEND_DIR`), alohida web-server shart emas.
+- **Zaxira** — har kuni cron orqali SQLite nusxasi (`sqlite3 .backup`), 14 kun saqlanadi.
+
+Fayllar:
+
+| Fayl | Vazifasi |
+|---|---|
+| `deploy/server-setup.sh` | Serverni bir marta tayyorlash: foydalanuvchi, papkalar, venv, systemd, ufw, cron |
+| `deploy/deploy.sh` | Yangilash: frontend build → yuklash → `pip install` → `systemctl restart` → health check |
+| `deploy/shgat.service` | systemd unit |
+| `deploy/shgat.env.example` | Serverdagi sozlamalar namunasi (`/etc/shgat/shgat.env`) |
+
+Yangilash bitta buyruq bilan:
+
+```bash
+./deploy/deploy.sh          # ~/.ssh/config dagi host nomi: DEPLOY_HOST=... bilan o'zgartiriladi
+```
+
+Kuzatish: `systemctl status shgat`, `journalctl -u shgat -f`.
 
 ## Sozlamalar (`backend/.env`)
 
@@ -65,6 +103,7 @@ cd frontend && npm test       # 23 ta test
 | `ARCGIS_TIMEOUT` | `15` | Bitta so'rov uchun vaqt chegarasi, soniya |
 | `ARCGIS_RETRIES` | `3` | Vaqtinchalik xatolarda jami urinishlar |
 | `CORS_ORIGINS` | `http://localhost:5173` | Vergul bilan ajratiladi |
+| `FRONTEND_DIR` | — | Berilsa, backend yig'ilgan frontend fayllarini ham beradi (production) |
 
 Frontend uchun: `VITE_API_URL` — backend manzili (bo'sh bo'lsa, proxy ishlatiladi).
 

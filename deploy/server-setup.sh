@@ -2,6 +2,8 @@
 # Serverni BIR MARTA tayyorlash (Ubuntu 24.04). sudo bilan ishga tushiriladi:
 #   sudo bash server-setup.sh
 set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+export DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a
 
 apt-get update -qq
 apt-get install -y -qq python3-venv sqlite3 >/dev/null
@@ -13,10 +15,10 @@ install -d -o root -g root -m 755 /opt/shgat /opt/shgat/backend /opt/shgat/front
 install -d -o shgat -g shgat -m 750 /var/lib/shgat /var/lib/shgat/uploads /var/lib/shgat/backups
 install -d -o root -g shgat -m 750 /etc/shgat
 
-[ -f /etc/shgat/shgat.env ] || install -o root -g shgat -m 640 /tmp/shgat-deploy/shgat.env.example /etc/shgat/shgat.env
+[ -f /etc/shgat/shgat.env ] || install -o root -g shgat -m 640 "$HERE/shgat.env.example" /etc/shgat/shgat.env
 [ -d /opt/shgat/venv ] || python3 -m venv /opt/shgat/venv
 
-install -o root -g root -m 644 /tmp/shgat-deploy/shgat.service /etc/systemd/system/shgat.service
+install -o root -g root -m 644 "$HERE/shgat.service" /etc/systemd/system/shgat.service
 systemctl daemon-reload
 systemctl enable shgat >/dev/null
 
