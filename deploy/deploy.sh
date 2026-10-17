@@ -23,7 +23,11 @@ S=/tmp/shgat-deploy
 [ -d /opt/shgat/venv ] || bash $S/deploy/server-setup.sh
 # Kod (root egasi, xizmat faqat o'qiydi) — eski fayllar qolib ketmasligi uchun to'liq almashtiriladi
 rsync -a --delete $S/backend/ /opt/shgat/backend/
-rsync -a --delete $S/frontend/dist/ /opt/shgat/frontend/
+# Frontend: eski JS bo'laklari darhol o'chirilmaydi — deploy paytida ochiq qolgan sahifalar ishlashda davom etadi.
+# index.html va yangi fayllar yoziladi, 7 kundan eski bo'laklar tozalanadi.
+rsync -a --exclude=assets $S/frontend/dist/ /opt/shgat/frontend/
+rsync -a $S/frontend/dist/assets/ /opt/shgat/frontend/assets/
+find /opt/shgat/frontend/assets -type f -mtime +7 -delete
 install -o root -g root -m 644 $S/deploy/shgat.service /etc/systemd/system/shgat.service
 # JWT kaliti serverning o'zida bir marta yaratiladi va hech qayerga chiqmaydi
 grep -q '^JWT_SECRET=' /etc/shgat/shgat.env || echo "JWT_SECRET=$(openssl rand -hex 32)" >> /etc/shgat/shgat.env

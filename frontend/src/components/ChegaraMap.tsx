@@ -77,7 +77,12 @@ export default function ChegaraMap({ chegara, objectId }: Props) {
     <div>
       <div ref={divRef} className="map" />
       {objectId != null && !xabar && <p className="muted small">Chegara ochiq ArcGIS qatlamidan olindi (objectid = {objectId}).</p>}
-      {xabar && <p className="alert alert-warn">{xabar}</p>}
+      {xabar && (
+        <div className="alert alert-warn" style={{ marginTop: 8, alignItems: 'center' }}>
+          <span style={{ flex: 1 }}>{xabar}</span>
+          <button type="button" className="btn btn-light" onClick={() => location.reload()}>Sahifani yangilash</button>
+        </div>
+      )}
     </div>
   )
 }
