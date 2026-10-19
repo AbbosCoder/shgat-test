@@ -29,8 +29,9 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title="Shaharsozlik hujjatlari reestri",
     description="Shaharsozlik hujjatlari arizalarini qabul qilish, tasdiqlash va chegarani ArcGIS qatlamiga yozish. "
-    "Avval `POST /api/auth/login` orqali token oling, keyin har bir so'rovda `Authorization: Bearer <token>` yuboring. "
-    "Rol (ariza_beruvchi yoki tekshiruvchi) tokenning ichida.",
+    "**Qanday ishlatiladi:** 1) `POST /api/auth/login` → *Try it out* → login va parolni kiriting → *Execute*. "
+    "2) Javobdagi `token` qiymatini nusxalang. 3) Yuqoridagi **Authorize** tugmasini bosib, tokenni qo'ying (\"Bearer\" so'zisiz). "
+    "Shundan keyin barcha endpointlar shu foydalanuvchi nomidan ishlaydi. Rol (ariza_beruvchi yoki tekshiruvchi) tokenning ichida.",
     version="1.1.0",
     lifespan=lifespan,
 )
